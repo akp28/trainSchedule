@@ -32,15 +32,19 @@ var mAway = " ";
 $("#add-train-btn").on("click", addTrain); 
  
 function updateTrainTime(){
-  dataRef.ref().orderByChild("dateAdded").on("child_added", function(childSnapshot) {
+  database.ref().orderByChild(dateAdded).on("child_added", function(childSnapshot) {
     // childSnapshot.val()
     // var dateAdd = "";
-    childSnapshot.forEach(function (snapShot){
+    console.log("inUpdate function");
+    // database.ref().on("child_changed", function(childSnapshot) {
+    childSnapshot.forEach(function (snapshot){
+      console.log("snapshot:" +snapshot.val());
       trainFrequency = snapshot.val().frequency;
       // nxtTrain = snapshot.val().nextTrain;
       // mAway = snapshot.val().minAway;
       var updateTime = timeCalc(trainFrequency);
       database.ref().update({minAway: updateTime[0],nextTrain: updateTime[1]})
+      console.log("firebase update: " + snapshot.val());
     });
   });
 };
@@ -163,8 +167,8 @@ function timeCalc(trainFrequency){
     //   dateAdded: firebase.database.ServerValue.TIMESTAMP
     // });
 }
-
-setInterval(updateTrainTime,1000);
+// will add later .
+// setInterval(updateTrainTime,30*1000);
 // Example Time Math
 // -----------------------------------------------------------------------------
 // Assume train start date of January 1, 2015
