@@ -19,67 +19,41 @@
   firebase.initializeApp(config);
 
 var database = firebase.database();
-
-var currentTime = moment();
-var trainName = " ";
-var trainDestination = " ";
-var trainStart = " ";
-var trainFrequency = " ";
-var nxtTrain = " ";
-var mAway = " ";
+var trainName = $("#train-name-input").val().trim();
+var trainDestination = $("#destination-input").val().trim();
+var trainStart = moment($("#start-input").val().trim(), "HH:mm").format("X");
+var trainFrequency = $("#frequency-input").val().trim();
+var nxtTrain = "";
+var mAway = "";
 
 // 2. Button for adding trains
-$("#add-train-btn").on("click", addTrain); 
- 
-function updateTrainTime(){
-  database.ref().orderByChild(dateAdded).on("child_added", function(childSnapshot) {
-    // childSnapshot.val()
-    // var dateAdd = "";
-    console.log("inUpdate function");
-    // database.ref().on("child_changed", function(childSnapshot) {
-    childSnapshot.forEach(function (snapshot){
-      console.log("snapshot:" +snapshot.val());
-      trainFrequency = snapshot.val().frequency;
-      // nxtTrain = snapshot.val().nextTrain;
-      // mAway = snapshot.val().minAway;
-      var updateTime = timeCalc(trainFrequency);
-      database.ref().update({minAway: updateTime[0],nextTrain: updateTime[1]})
-      console.log("firebase update: " + snapshot.val());
-    });
-  });
-};
-function addTrain(){
-  event.preventDefault();
+$("#add-train-btn").on("click", function(event){
+  if (trainName.length === 0 || trainDestination.length === 0 || trainStart.length === 0 || timeFrequency === 0) {
+    alert("Please Fill All Required Fields");
+} else {
+    // if form is filled out, run function
+    addTrain(event);
+}
+});
 
-  // Grabs user input
-  var trainName = $("#train-name-input").val().trim();
-  var trainDestination = $("#destination-input").val().trim();
-  var trainStart = moment($("#start-input").val().trim(), "HH:mm").format("X");
-  var trainFrequency = $("#frequency-input").val().trim();
-  var calc = timeCalc(trainFrequency,trainStart);
-  var mAway = calc[0];
-  var nTrain = calc[1];
-  console.log ("mAway: " + mAway);
-  console.log("nTrain: " + nTrain);
-  // Creates local "temporary" object for holding train data
+function addTrain(event){
+  event.preventDefault();
   var newTrain = {
     name: trainName,
     destination: trainDestination,
     start: trainStart,
     frequency: trainFrequency,
-    minAway: mAway,
-    nextTrain: nTrain,
     dateAdded: firebase.database.ServerValue.TIMESTAMP
   };
   // Uploads train data to the database
   database.ref().push(newTrain);
   // Logs everything to console
-  console.log(newTrain.name);
-  console.log(newTrain.destination);
-  console.log(newTrain.start);
-  console.log(newTrain.frequency);
-  console.log("minAway: " + newTrain.minAway);
-  console.log("next Train: " + newTrain.nextTrain);
+  // console.log(newTrain.name);
+  // console.log(newTrain.destination);
+  // console.log(newTrain.start);
+  // console.log(newTrain.frequency);
+  // console.log("minAway: " + newTrain.minAway);
+  // console.log("next Train: " + newTrain.nextTrain);
 
   alert("train successfully added");
 
@@ -100,17 +74,11 @@ database.ref().on("child_added", function(childSnapshot) {
    trainDestination = childSnapshot.val().destination;
    trainStart = childSnapshot.val().start;
    trainFrequency = childSnapshot.val().frequency;
-   nxtTrain = childSnapshot.val().nextTrain;
-   mAway = childSnapshot.val().minAway;
-
-
-  // train Info
-  console.log(trainName);
-  console.log(trainDestination);
-  console.log(trainStart);
-  console.log(trainFrequency);
-  // Prettify the train start
-  var trainStartPretty = moment.unix(trainStart).format("HH:mm");
+  //  nxtTrain = childSnapshot.val().nextTrain;
+  //  mAway = childSnapshot.val().minAway;
+  var calc = timeCalc(trainFrequency,trainStart);
+   mAway = calc[0];
+   nxtTrain = calc[1];
 
   // Create the new row
   var newRow = $("<tr>").append(
@@ -125,54 +93,28 @@ database.ref().on("child_added", function(childSnapshot) {
   $("#train-table > tbody").append(newRow);
 });
 
-function timeCalc(trainFrequency){
+function timeCalc(trainFrequency,trainStart){
   var tFrequency = trainFrequency;
 
     // Time is 3:30 AM
-    var firstTime = "3:30";
-
+    var firstTime = trainStart;
     // First Time (pushed back 1 year to make sure it comes before current time)
-    // var firstTimeConverted = moment(firstTime, "HH:mm").subtract(1, "years");
-    var firstTimeConverted = moment(firstTime, "HH:mm");
-    console.log(firstTimeConverted);
-    // Current Time
-    console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
-
+    var firstTimeConverted = moment(firstTime, "HH:mm").subtract(1, "years");
     // Difference between the times
     var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
-    console.log("DIFFERENCE IN TIME: " + diffTime);
-
+    // console.log("DIFFERENCE IN TIME: " + diffTime);
     // Time apart (remainder)
     var tRemainder = diffTime % tFrequency;
-    console.log("tRemainder:" + tRemainder);
-
+    // console.log("tRemainder:" + tRemainder);
     // Minute Until Train
     var tMinutesTillTrain = tFrequency - tRemainder;
-    console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+    // console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
     tMinutesTillTrain = tMinutesTillTrain.toString();
-
     // Next Train
-    var ntTrain = moment().add(tMinutesTillTrain, "minutes");
-    console.log("ARRIVAL TIME: " + moment(ntTrain).format("hh:mm"));
-        ntTrain = (moment(ntTrain).format("hh:mm")).toString();
+    var ntTrain = (moment().add(tMinutesTillTrain, "minutes").format("hh:mm A")).toString();
+
+    // console.log("ARRIVAL TIME: " + ntTrain);
+        // ntTrain = (moment(ntTrain).format("hh:mm A")).toString();
 
     return [tMinutesTillTrain,ntTrain];
-    //   minAway : tMinutesTillTrain,
-    //   nxtArrival: ntTrain
-    // }
-
-    // database.ref().push({
-    //   minAway: tMinutesTillTrain,
-    //   nxtArrival: nextTrain,
-    //   dateAdded: firebase.database.ServerValue.TIMESTAMP
-    // });
 }
-// will add later .
-// setInterval(updateTrainTime,30*1000);
-// Example Time Math
-// -----------------------------------------------------------------------------
-// Assume train start date of January 1, 2015
-// Assume current date is March 1, 2016
-
-// We know that this is 15 months.
-// Now we will create code in moment.js to confirm that any attempt we use meets this test case
