@@ -8,15 +8,16 @@
 // 5. Calculate Total billed
 // var fireApiKey = config.fireKey;
 // 1. Initialize Firebase
- var config = {
-    apiKey: "AIzaSyA_fZV21m_j87r6DzLykGgJO2yo2Mj0GEM",
-    authDomain: "trainschedule-78063.firebaseapp.com",
-    databaseURL: "https://trainschedule-78063.firebaseio.com",
-    projectId: "trainschedule-78063",
-    storageBucket: "trainschedule-78063.appspot.com",
-    messagingSenderId: "474043826565"
-  };
-  firebase.initializeApp(config);
+var dataKey = config.fireKey;
+var config = {
+  apiKey: dataKey,
+  authDomain: "trainschedule-78063.firebaseapp.com",
+  databaseURL: "https://trainschedule-78063.firebaseio.com",
+  projectId: "trainschedule-78063",
+  storageBucket: "trainschedule-78063.appspot.com",
+  messagingSenderId: "474043826565"
+};
+firebase.initializeApp(config);
 
 var database = firebase.database();
 // var trainName = $("#train-name-input").val().trim();
@@ -55,16 +56,7 @@ function addTrain(event){
   };
   // Uploads train data to the database
   database.ref().push(newTrain);
-  // Logs everything to console
-  // console.log(newTrain.name);
-  // console.log(newTrain.destination);
-  // console.log(newTrain.start);
-  // console.log(newTrain.frequency);
-  // console.log("minAway: " + newTrain.minAway);
-  // console.log("next Train: " + newTrain.nextTrain);
-
   alert("train successfully added");
-
   // updateInfo();
   // Clears all of the text-boxes
   $("#train-name-input").val("");
