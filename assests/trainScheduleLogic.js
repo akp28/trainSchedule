@@ -65,6 +65,7 @@ function addTrain(event){
 
   alert("train successfully added");
 
+  // updateInfo();
   // Clears all of the text-boxes
   $("#train-name-input").val("");
   $("#destination-input").val("");
@@ -73,6 +74,7 @@ function addTrain(event){
   
 };
 
+// function updateInfo(){
 // 3. Create Firebase event for adding train to the database and a row in the html when a user adds an entry
 database.ref().on("child_added", function(childSnapshot) {
   console.log(childSnapshot.val());
@@ -99,9 +101,10 @@ database.ref().on("child_added", function(childSnapshot) {
 
   // Append the new row to the table
   $("#train-table > tbody").append(newRow);
+},function (errorObject) {
+    console.log("The read failed: " + errorObject.code);
 });
-
-
+// }
 function timeCalc(cTrainFrequency,cTrainStart){
   var tFrequency = cTrainFrequency;
 
