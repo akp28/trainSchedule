@@ -20,33 +20,31 @@ var config = {
 firebase.initializeApp(config);
 
 var database = firebase.database();
-// var trainName = $("#train-name-input").val().trim();
-// var trainDestination = $("#destination-input").val().trim();
-// var trainStart = moment($("#start-input").val().trim(), "HH:mm").format("X");
-// var trainFrequency = $("#frequency-input").val().trim();
+var trainName = "";
+var trainDestination = "";
+var trainStart = "";
+var trainFrequency = "";
 var nxtTrain = "";
 var mAway = "";
 
-// 2. Button for adding trains
-// $("#add-train-btn").on("click", function(event){
-//   console.log("this" +this);
-//   // if (trainName.val().length === 0 || trainDestination.val().length === 0 || trainStart.val().length === 0 || timeFrequency.val() === 0) {
-//    if(!$.trim(this.value).length){
-//     alert("Please Fill All Required Fields");
-// } else {
-//     // if form is filled out, run function
-//     addTrain(event);
-// }
-// });
-$("#add-train-btn").on("click", addTrain);
-// updateInfo();
-
-function addTrain(event){
+// Button for adding trains
+$("#add-train-btn").click(function(event){
+  // console.log("this" +this);
   event.preventDefault();
-  var trainName = $("#train-name-input").val().trim();
-  var trainDestination = $("#destination-input").val().trim();
-  var trainStart = moment($("#start-input").val().trim(), "HH:mm").format("X");
-  var trainFrequency = $("#frequency-input").val().trim();
+  trainName = $("#train-name-input").val().trim();
+  trainDestination = $("#destination-input").val().trim();
+  trainStart = moment($("#start-input").val().trim(), "HH:mm").format("X");
+  trainFrequency = $("#frequency-input").val().trim();
+    if (trainName.length === 0 || trainDestination.length === 0 || trainStart.length === 0 || trainFrequency.length === 0) {
+      alert("Please Fill All Required Fields");
+      return false;
+    } else {
+        // if form is filled out, run function
+        addTrain();
+    }
+});
+
+function addTrain(){
   var newTrain = {
     name: trainName,
     destination: trainDestination,
@@ -57,8 +55,7 @@ function addTrain(event){
   // Uploads train data to the database
   database.ref().push(newTrain);
   alert("train successfully added");
-  // updateInfo();
-  // Clears all of the text-boxes
+
   $("#train-name-input").val("");
   $("#destination-input").val("");
   $("#start-input").val("");
@@ -122,3 +119,8 @@ function timeCalc(cTrainFrequency,cTrainStart){
 
     return [tMinutesTillTrain,ntTrain];
 }
+
+setTimeout(function () { 
+  location.reload();
+  // $( "#train-table" ).load( "index.html #train-table" );
+}, 60000);
